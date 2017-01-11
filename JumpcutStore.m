@@ -185,6 +185,11 @@
     return returnArray;
 }
 
+-(NSString *) mergedClippingContents
+{
+    return [[jcList valueForKey:@"contents"] componentsJoinedByString:@"\n"];
+}
+
 -(void) dealloc
 {
     // Free preferences

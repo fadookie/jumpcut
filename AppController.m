@@ -552,6 +552,14 @@ fail:
     }
 }
 
+-(IBAction)pasteMergedClippingList:(id)sender {
+    [self performSelector:@selector(hideApp) withObject:nil afterDelay:0.2];
+    [self addClipToPasteboard:[clippingStore mergedClippingContents]];
+    if ( [[NSUserDefaults standardUserDefaults] boolForKey:@"bezelSelectionPastes"] ) {
+        [self performSelector:@selector(fakeCommandV) withObject:nil afterDelay:0.2];
+    }
+}
+
 - (void)updateMenu {
     int passedSeparator = 0;
     NSMenuItem *oldItem;
@@ -617,28 +625,34 @@ fail:
     pbBlockCount = newPBBlockCount;
 }
 
+-(void) addClipToPasteboard:(NSString*)pbFullText {
+    NSArray *pbTypes;
+    
+    pbTypes = [NSArray arrayWithObjects:@"NSStringPboardType",NULL];
+    
+    [jcPasteboard declareTypes:pbTypes owner:NULL];
+    
+    [jcPasteboard setString:pbFullText forType:@"NSStringPboardType"];
+}
+
 -(BOOL)addClipToPasteboardFromCount:(int)indexInt movingToTop:(bool)moveBool
 {
-    NSString *pbFullText;
-    NSArray *pbTypes;
+
     if ( (indexInt + 1) > [clippingStore jcListCount] ) {
         // We're asking for a clipping that isn't there yet
 		// This only tends to happen immediately on startup when not saving, as the entire list is empty.
         NSLog(@"Out of bounds request to jcList ignored.");
         return false;
     }
-    pbFullText = [self clippingStringWithCount:indexInt];
-    pbTypes = [NSArray arrayWithObjects:@"NSStringPboardType",NULL];
     
-    [jcPasteboard declareTypes:pbTypes owner:NULL];
-	
-    [jcPasteboard setString:pbFullText forType:@"NSStringPboardType"];
-	if ( moveBool ) {
-	
-	} else {
-		[self setPBBlockCount:[NSNumber numberWithInt:[jcPasteboard changeCount]]];
-	}
-	return true;
+    [self addClipToPasteboard:[self clippingStringWithCount:indexInt]];
+    
+    if ( moveBool ) {
+        
+    } else {
+        [self setPBBlockCount:[NSNumber numberWithInt:[jcPasteboard changeCount]]];
+    }
+    return true;
 }
 
 -(void) loadEngineFromPList
