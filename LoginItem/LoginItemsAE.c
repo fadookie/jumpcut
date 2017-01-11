@@ -94,45 +94,16 @@ static OSStatus LaunchSystemEvents(ProcessSerialNumber *psnPtr)
     // Launch it!
     
     if (err == noErr) {
-        if ( LSOpenApplication != NULL ) {
-            LSApplicationParameters     appParams;
-            
-            // Do it the easy way on 10.4 and later.
-            
-            memset(&appParams, 0, sizeof(appParams));
-            appParams.version = 0;
-            appParams.flags = kLSLaunchDefaults;
-            appParams.application = &appRef;
-            
-            err = LSOpenApplication(&appParams, psnPtr);
-        } else {
-            FSSpec				appSpec;
-            LaunchParamBlockRec lpb;
-            
-            // Do it the compatible way on earlier systems.
-            
-            // I launch System Events using LaunchApplication, rather than 
-            // Launch Services, because LaunchApplication gives me back 
-            // the ProcessSerialNumber.  Unfortunately this requires me to 
-            // get an FSSpec for the application because there's no 
-            // FSRef version of Launch Application.
-            
-            if (err == noErr) {
-                err = FSGetCatalogInfo(&appRef, kFSCatInfoNone, NULL, NULL, &appSpec, NULL);
-            }
-            if (err == noErr) {
-                memset(&lpb, 0, sizeof(lpb));
-                lpb.launchBlockID      = extendedBlock;
-                lpb.launchEPBLength    = extendedBlockLen;
-                lpb.launchControlFlags = launchContinue | launchNoFileFlags;
-                lpb.launchAppSpec      = &appSpec;
-                
-                err = LaunchApplication(&lpb);
-            }
-            if (err == noErr) {
-                *psnPtr = lpb.launchProcessSN;
-            }
-        }
+        LSApplicationParameters     appParams;
+        
+        // Do it the easy way on 10.4 and later.
+        
+        memset(&appParams, 0, sizeof(appParams));
+        appParams.version = 0;
+        appParams.flags = kLSLaunchDefaults;
+        appParams.application = &appRef;
+        
+        err = LSOpenApplication(&appParams, psnPtr);
     }
 
 	return err;
@@ -232,7 +203,7 @@ static OSStatus SendAppleEvent(const AEDesc *event, AEDesc *reply)
 		err = AEGetParamPtr(
 			reply, 
 			keyErrorNumber, 
-			typeShortInteger, 
+			typeSInt16,
 			&junkType,
 			&replyErr, 
 			sizeof(replyErr), 
@@ -808,7 +779,7 @@ extern OSStatus LIAERemove(CFIndex itemIndex)
 	// Build object specifier for "login item X".
 
 	itemIndexPlusOne = itemIndex + 1;	// AppleScript is one-based, CF is zero-based
-	err = AECreateDesc(typeLongInteger, &itemIndexPlusOne, sizeof(itemIndexPlusOne), &indexDesc);
+	err = AECreateDesc(typeSInt32, &itemIndexPlusOne, sizeof(itemIndexPlusOne), &indexDesc);
 	if (err == noErr) {
 		err = CreateObjSpecifier(cLoginItem, (AEDesc *) &kAENull, formAbsolutePosition, &indexDesc, false, &loginItemAtIndex);
 	}

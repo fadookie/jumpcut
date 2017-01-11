@@ -12,16 +12,17 @@
 #import "PTHotKey.h"
 #import "PTHotKeyCenter.h"
 #import "SRRecorderCell.h"
+#import <AppKit/AppKit.h>
 
 #define _DISPLENGTH 40
 
-enum {
-    NSWindowCollectionBehaviorDefault = 0,
-    NSWindowCollectionBehaviorCanJoinAllSpaces = 1 << 0,
-    NSWindowCollectionBehaviorMoveToActiveSpace = 1 << 1
-};
-
-typedef unsigned NSWindowCollectionBehavior;
+//enum {
+//    NSWindowCollectionBehaviorDefault = 0,
+//    NSWindowCollectionBehaviorCanJoinAllSpaces = 1 << 0,
+//    NSWindowCollectionBehaviorMoveToActiveSpace = 1 << 1
+//};
+//
+//typedef unsigned NSWindowCollectionBehavior;
 
 @interface NSWindow (NSWindowCollectionBehavior)
 - (void)setCollectionBehavior:(NSWindowCollectionBehavior)behavior;
